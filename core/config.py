@@ -23,6 +23,8 @@ texconv_path = "Externals/texconv.exe"
 image_resolution = (4096, 4096)
 ui_accessory_resolution = (256, 54) # Resolution for UI accessory icons
 dds_format = "DXT5"
+create_mask_sui = True
+create_metallic_sui = True
 generate_zip = True
 
 output_folder = Path(f"output_{mod_name}")
