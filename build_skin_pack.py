@@ -275,7 +275,6 @@ for idx, img_file in enumerate(images):
         sui_create_function=create_trailer_sui
     )
 
-    )
     logging.info(f"--- Finished processing for paint_id: '{paint_id}' ---\n")
 
 # === FINAL STEPS ===
