@@ -40,8 +40,7 @@ from core.config import (
     mod_name, input_folder, texconv_path, image_resolution, dds_format,
     generate_zip, output_folder, paintjob_root, def_root,
     ui_folder, mod_icon_path, temp_folder, paint_job_prefix,
-    mod_version, mod_author, mod_description_content,
-    ui_accessory_resolution
+    mod_version, mod_author, mod_description_content
 )
 
 # === LOGGING SETUP ===
@@ -230,15 +229,8 @@ for idx, img_file in enumerate(images):
     # --- Generate UI (User Interface) assets for the paint job ---
     # These are icons and material files for the in-game paint job selection menu.
     logging.info(f"  Generating UI assets for '{paint_id}'...")
-
-    # Define the output path for the UI accessory specific image
-    ui_accessory_resized_path = temp_folder / f"{paint_id}_ui_accessory.png"
-
-    logging.info(f"  Resizing for UI accessory: '{resized_path}' to {ui_accessory_resolution} and saving to '{ui_accessory_resized_path}'...")
-    resize_image(resized_path, ui_accessory_resized_path, ui_accessory_resolution) # Add the new resize call
-
     # Convert the resized image to DDS format for UI purposes.
-    convert_to_dds(texconv_path, ui_accessory_resized_path, ui_folder, dds_format) 
+    convert_to_dds(texconv_path, resized_path, ui_folder, dds_format) 
     ui_dds_temp_name = ui_folder / f"{paint_id}.DDS" # Default output name from texconv (uppercase .DDS)
     final_ui_dds_name = ui_folder / f"{paint_id}.dds" # Desired final name (lowercase .dds)
     if ui_dds_temp_name.exists():
@@ -324,4 +316,3 @@ else:
     logging.info(f"Mod files prepared in '{output_folder}'. SCS archive generation was skipped (as per config).")
 
 logging.info("\nAll tasks completed successfully!")
-

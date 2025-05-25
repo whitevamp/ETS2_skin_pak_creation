@@ -1,4 +1,4 @@
-# config.py
+ #config.py
 
 from pathlib import Path
 
@@ -19,8 +19,9 @@ mod_description_content = """\
     Created with the ETS2/ATS Skin Pack Builder.
     """
 input_folder = "skin_sources"
-texconv_path = "texconv.exe"
+texconv_path = "Externals/texconv.exe"
 image_resolution = (4096, 4096)
+ui_accessory_resolution = (256, 54) # Resolution for UI accessory icons
 dds_format = "DXT5"
 generate_zip = True
 
@@ -30,3 +31,4 @@ def_root = output_folder / "def"
 ui_folder = output_folder / "material/ui/accessory"
 mod_icon_path = output_folder / "mod_icon.jpg"
 temp_folder = Path("temp_resized")
+
