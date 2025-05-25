@@ -3,7 +3,21 @@
 from pathlib import Path
 
 # === CONFIGURATION ===
-mod_name = "girls_skin_pack"
+# TODO: Customize these values
+mod_name = "MySkinPack"
+# TODO: Customize these values
+mod_version = "1.0.0"
+# TODO: Customize these values
+mod_author = "Your Name"
+# TODO: Customize these values
+paint_job_prefix = "skin"
+# TODO: Customize these values
+mod_description_content = """\
+    My awesome skin pack!
+    - Skin 1
+    - Skin 2
+    Created with the ETS2/ATS Skin Pack Builder.
+    """
 input_folder = "skin_sources"
 texconv_path = "texconv.exe"
 image_resolution = (4096, 4096)
