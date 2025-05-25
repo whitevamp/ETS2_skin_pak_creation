@@ -62,30 +62,6 @@ while len(paint_ids) < len(images):
     paint_ids.add(generate_random_paint_id())
 paint_ids = list(paint_ids)
 
-# def convert_to_dds(src, dst_folder):
-    # """
-    # Converts an image to DDS format using texconv.
-    # """
-    # subprocess.run([
-        # texconv_path, "-f", dds_format, "-m", "1", "-o", str(dst_folder), str(src)
-    # ], check=True)
-
-# def resize_image(src_path, dst_path):
-    # """
-    # Resizes the image to the configured resolution and saves as PNG.
-    # """
-    # img = Image.open(src_path).convert("RGBA")
-    # img = img.resize(image_resolution, Image.LANCZOS)
-    # img.save(dst_path)
-
-# def create_mod_icon(image_path, dst_path):
-    # """
-    # Creates a resized JPEG icon from the source image for use in the mod manifest.
-    # """
-    # img = Image.open(image_path).convert("RGB")
-    # img = img.resize((276, 162), Image.LANCZOS)
-    # img.save(dst_path, "JPEG")
-
 # === MAIN PROCESS ===
 # Process each image to generate skins for trucks and trailers
 for idx, img_file in enumerate(images):
@@ -97,7 +73,6 @@ for idx, img_file in enumerate(images):
     resize_image(input_path, resized_path, image_resolution)
 
     # Generate UI texture and related files
-    #convert_to_dds(resized_path, ui_folder)
     convert_to_dds(texconv_path, resized_path, ui_folder, dds_format)
     ui_dds = ui_folder / f"{paint_id}.DDS"
     final_ui_dds = ui_folder / f"{paint_id}.dds"
@@ -112,7 +87,6 @@ for idx, img_file in enumerate(images):
         paint_folder.mkdir(parents=True, exist_ok=True)
 
         # Convert and rename texture
-        #convert_to_dds(resized_path, paint_folder)
         convert_to_dds(texconv_path, resized_path, paint_folder, dds_format)
         dds = paint_folder / f"{paint_id}.DDS"
         dds_final = paint_folder / f"{paint_id}_0.dds"
@@ -137,7 +111,6 @@ for idx, img_file in enumerate(images):
         paint_folder.mkdir(parents=True, exist_ok=True)
 
         # Convert and rename texture
-        #convert_to_dds(resized_path, paint_folder)
         convert_to_dds(texconv_path, resized_path, paint_folder, dds_format)
         dds = paint_folder / f"{paint_id}.DDS"
         final_dds = paint_folder / f"{paint_id}_shared.dds"
@@ -161,46 +134,11 @@ for idx, img_file in enumerate(images):
 if images:
     create_mod_icon(Path(input_folder) / images[0], mod_icon_path)
 
-# === MANIFEST & DESCRIPTION ===
-# (output_folder / "manifest.sii").write_text(f"""SiiNunit
-# {{
-	# mod_package : .package_name
-	# {{
-		# package_version:	"1.0"
-		# display_name:		"test"
-		# author:				"wv"
-		# mp_mod_optional:	true
-
-		# icon: "mod_icon.jpg"
-		# description_file: "mod_description.txt"
-		
-		# category[]: "paint_job"
-	# }}
-# }}""")
-
-# (output_folder / "mod_description.txt").write_text("""[blue]This mod was created using Mods Studio 2
-# [orange]www.mods.studio[normal]
-
-# this is a mod description, text
-# """)
-
 # === Manifest & Description ===
 write_manifest(output_folder, "test")
 write_description(output_folder)
 
 # === PACK TO .SCS ARCHIVE ===
-# if generate_zip:
-    # scs_name = Path(f"{mod_name}.scs")
-    # with zipfile.ZipFile(scs_name, "w", zipfile.ZIP_DEFLATED) as scs:
-        # for root, _, files in os.walk(output_folder):
-            # for file in files:
-                # full_path = os.path.join(root, file)
-                # rel_path = os.path.relpath(full_path, output_folder)
-                # scs.write(full_path, rel_path)
-    # print(f"✅ Packed mod into: {scs_name}")
-# else:
-    # print("✅ Mod files prepared (no .scs zip created)")
-# === Pack to SCS ===
 if generate_zip:
     scs_file = pack_to_scs(output_folder, mod_name)
     print(f"✅ Packed mod into: {scs_file}")
