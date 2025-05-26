@@ -238,17 +238,38 @@ for idx, img_file in enumerate(images):
     resize_image(resized_path, ui_accessory_resized_path, ui_accessory_resolution) # Add the new resize call
 
     # Convert the resized image to DDS format for UI purposes.
-    convert_to_dds(texconv_path, ui_accessory_resized_path, ui_folder, dds_format) 
-    ui_dds_temp_name = ui_folder / f"{paint_id}.DDS" # Default output name from texconv (uppercase .DDS)
-    final_ui_dds_name = ui_folder / f"{paint_id}.dds" # Desired final name (lowercase .dds)
-    if ui_dds_temp_name.exists():
-        ui_dds_temp_name.rename(final_ui_dds_name) # Rename to lowercase .dds for consistency
-        logging.debug(f"    Renamed UI DDS to {final_ui_dds_name}")
+    # Input PNG is {paint_id}_ui_accessory.png, so output from convert_to_dds will be {paint_id}_ui_accessory.DDS
+    convert_to_dds(texconv_path, ui_accessory_resized_path, ui_folder, dds_format)
     
+    # Define expected DDS names
+    original_dds_output_name = ui_folder / f"{paint_id}_ui_accessory.DDS" # Name as output by convert_to_dds
+    final_ui_dds_name = ui_folder / f"{paint_id}_ui_accessory.dds"      # Desired final name with lowercase .dds
+
+    # Rename to ensure lowercase .dds extension
+    if original_dds_output_name.exists():
+        if original_dds_output_name != final_ui_dds_name: # Avoid renaming if it's already correct (e.g. texconv changes)
+            original_dds_output_name.rename(final_ui_dds_name)
+            logging.debug(f"    Renamed UI DDS to {final_ui_dds_name}")
+        else:
+            logging.debug(f"    UI DDS already has correct name and case: {final_ui_dds_name}")
+    elif final_ui_dds_name.exists():
+        logging.debug(f"    UI DDS already exists with correct name: {final_ui_dds_name}")
+    else:
+        logging.warning(f"    Expected UI DDS file {original_dds_output_name} or {final_ui_dds_name} not found after conversion.")
+
     # Create TOBJ file for the UI DDS.
-    create_tobj(f"{paint_id}.dds", ui_folder / f"{paint_id}.tobj", "/material/ui/accessory", save_mode="default")
-    # Create the .mat (material) file for the UI, which references the UI TOBJ.
-    create_ui_mat(paint_id, ui_folder)
+    # The first argument is the texture name (e.g., "paintjob001_ui_accessory.dds")
+    # The second argument is the full path to where the .tobj file should be saved (e.g., "output_mod/material/ui/accessory/paintjob001_ui_accessory.tobj")
+    create_tobj(
+        f"{paint_id}_ui_accessory.dds",
+        ui_folder / f"{paint_id}_ui_accessory.tobj",
+        "/material/ui/accessory",
+        save_mode="default"
+    )
+    # Create the .mat (material) file for the UI.
+    # This needs to use the base name "{paint_id}_ui_accessory" to correctly generate
+    # "{paint_id}_ui_accessory.mat" and reference "{paint_id}_ui_accessory.tobj" internally.
+    create_ui_mat(f"{paint_id}_ui_accessory", ui_folder)
     logging.info(f"  UI assets for '{paint_id}' generated successfully.")
 
     # --- Process Truck Paint Jobs ---
