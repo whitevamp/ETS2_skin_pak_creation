@@ -1,6 +1,7 @@
 using SixLabors.ImageSharp; // For Image, Size
 using SixLabors.ImageSharp.Processing; // For Mutate, ResizeOptions, ResizeMode
 using SixLabors.ImageSharp.Formats.Png; // For SaveAsPngAsync
+using SixLabors.ImageSharp.Formats.Jpeg; // Added for JPEG support
 using System.IO;
 using System.Threading.Tasks;
 // No direct dependency on ProjectSettings here, pass necessary parameters.
@@ -16,16 +17,16 @@ namespace SkinPackCreator.Core.Services
             _texconvService = texconvService ?? throw new System.ArgumentNullException(nameof(texconvService));
         }
 
-        // Resizes an image and saves it as PNG.
+        // Resizes an image and saves it.
         // sourceImagePath: Full path to the source image.
-        // outputDirectory: Directory to save the resized PNG.
-        // outputFileName: Name of the resized PNG file (e.g., "paint_id.png").
+        // outputDirectory: Directory to save the resized image.
+        // outputFileNameWithExtension: Name of the resized file, including desired extension (e.g., "icon.jpg", "temp_image.png").
         // resolution: Tuple (Width, Height) for target resolution.
         // Returns: (bool Success, string Message, string? OutputPath)
         public async Task<(bool Success, string Message, string? OutputPath)> ResizeImageAsync(
             string sourceImagePath,
             string outputDirectory,
-            string outputFileName,
+            string outputFileNameWithExtension, // e.g., "icon.jpg" or "temp_image.png"
             (int Width, int Height) resolution)
         {
             if (string.IsNullOrWhiteSpace(sourceImagePath))
@@ -34,13 +35,13 @@ namespace SkinPackCreator.Core.Services
                 return (false, $"Source image not found: {sourceImagePath}", null);
             if (string.IsNullOrWhiteSpace(outputDirectory))
                 return (false, "Output directory for resized image not specified.", null);
-            if (string.IsNullOrWhiteSpace(outputFileName))
+            if (string.IsNullOrWhiteSpace(outputFileNameWithExtension))
                 return (false, "Output file name for resized image not specified.", null);
             if (resolution.Width <= 0 || resolution.Height <= 0)
                 return (false, "Invalid image resolution specified.", null);
 
 
-            string fullOutputResizedPath = Path.Combine(outputDirectory, outputFileName);
+            string fullOutputResizedPath = Path.Combine(outputDirectory, outputFileNameWithExtension);
 
             try
             {
@@ -54,18 +55,26 @@ namespace SkinPackCreator.Core.Services
                     image.Mutate(ctx => ctx.Resize(new ResizeOptions
                     {
                         Size = new Size(resolution.Width, resolution.Height),
-                        // Consider LanczosResample for high quality, but Stretch is simpler if aspect ratio isn't preserved.
-                        // Python's default resize is equivalent to Pillow's Image.resize which is NEAREST if not specified,
-                        // but LANCZOS was used in the python script's resize_image.
-                        Mode = ResizeMode.Stretch // Or use Resampler = new LanczosResampler() for higher quality.
+                        // Consider LanczosResample for high quality. Stretch is used for simplicity
+                        // if aspect ratio doesn't need to be strictly preserved or if original aspect is unknown.
+                        Mode = ResizeMode.Stretch 
                     }));
-                    await image.SaveAsPngAsync(fullOutputResizedPath, new PngEncoder { CompressionLevel = PngCompressionLevel.DefaultCompression }); // Default compression
+
+                    string extension = Path.GetExtension(outputFileNameWithExtension).ToLowerInvariant();
+                    if (extension == ".jpg" || extension == ".jpeg")
+                    {
+                        await image.SaveAsJpegAsync(fullOutputResizedPath, new JpegEncoder { Quality = 90 }); // Example quality
+                    }
+                    else // Default to PNG
+                    {
+                        await image.SaveAsPngAsync(fullOutputResizedPath, new PngEncoder { CompressionLevel = PngCompressionLevel.DefaultCompression });
+                    }
                 }
-                return (true, $"Image '{Path.GetFileName(sourceImagePath)}' resized to {resolution.Width}x{resolution.Height} and saved to '{fullOutputResizedPath}'.", fullOutputResizedPath);
+                return (true, $"Image '{Path.GetFileName(sourceImagePath)}' processed as '{outputFileNameWithExtension}' to {resolution.Width}x{resolution.Height} and saved to '{fullOutputResizedPath}'.", fullOutputResizedPath);
             }
             catch (System.Exception ex)
             {
-                return (false, $"Error resizing image '{Path.GetFileName(sourceImagePath)}': {ex.Message}", null);
+                return (false, $"Error processing image '{Path.GetFileName(sourceImagePath)}' to '{outputFileNameWithExtension}': {ex.Message}", null);
             }
         }
 

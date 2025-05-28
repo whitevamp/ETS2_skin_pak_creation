@@ -1,0 +1,30 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:SkinPackCreator.Avalonia"
+             x:Class="SkinPackCreator.Avalonia.App"
+             RequestedThemeVariant="Default"> <!-- Or "Light" / "Dark" -->
+    <!-- 
+        If a ViewLocator is used, it's typically defined here.
+        A ViewLocator maps ViewModels to Views. For now, we are setting DataContext directly in App.axaml.cs,
+        so this specific DataTemplates block might be omitted if ViewLocator isn't immediately implemented.
+    -->
+    <Application.DataTemplates>
+        <!-- <local:ViewLocator/> --> <!-- To be implemented if that pattern is chosen -->
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme />
+        <!-- Basic global styles matching hints from MainWindow.axaml -->
+        <Style Selector="Button.accent">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <!-- Using dynamic resources for theme-aware accent colors -->
+            <Setter Property="Background" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+        </Style>
+        <Style Selector="TextBlock.h2">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,10,0,5"/> <!-- Consistent margin for h2 elements -->
+        </Style>
+    </Application.Styles>
+</Application>

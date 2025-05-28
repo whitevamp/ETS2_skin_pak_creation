@@ -11,6 +11,11 @@ using SkinPackCreator.Core.Builders;
 
 namespace SkinPackCreator.Core
 {
+    /// <summary>
+    /// Orchestrates the entire mod generation process, from image processing to file generation and packaging.
+    /// It uses various services and builders to perform specific tasks like image manipulation,
+    /// DDS conversion, and creation of game-specific definition files (.sii, .sui, .tobj, .mat).
+    /// </summary>
     public class ModProcessor
     {
         private readonly ImageService _imageService;
@@ -21,6 +26,16 @@ namespace SkinPackCreator.Core
         private readonly MetadataGenerator _metadataGenerator;
         private readonly ScsArchiver _scsArchiver;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ModProcessor"/> class.
+        /// </summary>
+        /// <param name="imageService">Service for image processing tasks (resizing, DDS conversion).</param>
+        /// <param name="tobjBuilder">Builder for creating .tobj (texture object) files.</param>
+        /// <param name="matBuilder">Builder for creating .mat (material) files.</param>
+        /// <param name="suiBuilder">Builder for creating .sui (shared paint job data) files.</param>
+        /// <param name="siiBuilder">Builder for creating .sii (accessory definition) files.</param>
+        /// <param name="metadataGenerator">Generator for mod metadata files (manifest.sii, mod_description.txt).</param>
+        /// <param name="scsArchiver">Service for packaging the mod into an .scs archive.</param>
         public ModProcessor(
             ImageService imageService,
             TobjBuilder tobjBuilder,
@@ -39,6 +54,13 @@ namespace SkinPackCreator.Core
             _scsArchiver = scsArchiver ?? throw new ArgumentNullException(nameof(scsArchiver));
         }
 
+        /// <summary>
+        /// Generates a unique paint job identifier string based on a prefix and a random number.
+        /// Ensures uniqueness by checking against a set of existing IDs.
+        /// </summary>
+        /// <param name="settings">The project settings, containing the <see cref="ProjectSettings.PaintJobPrefix"/>.</param>
+        /// <param name="existingIds">A set of already generated IDs to ensure uniqueness for the current session.</param>
+        /// <returns>A unique paint job ID string (e.g., "skin0123").</returns>
         private string GenerateUniquePaintId(ProjectSettings settings, HashSet<string> existingIds)
         {
             string id;
@@ -61,6 +83,19 @@ namespace SkinPackCreator.Core
             return id;
         }
 
+        /// <summary>
+        /// Processes source images and generates all necessary files for the skin pack mod.
+        /// This includes resizing images, converting to DDS, creating TOBJ, MAT, SUI, SII files,
+        /// generating mod metadata (manifest, description, icon), and optionally packaging into an SCS archive.
+        /// </summary>
+        /// <param name="settings">The <see cref="ProjectSettings"/> guiding the mod generation process.</param>
+        /// <param name="sourceImagePaths">A list of paths to the source images to be included in the pack.</param>
+        /// <returns>
+        /// A tuple containing:
+        /// - <c>Success</c> (bool): True if the overall process completes, though individual errors might be logged.
+        ///   This might be refined to false if critical errors occur.
+        /// - <c>LogMessages</c> (List&lt;string&gt;): A list of messages detailing the steps, warnings, and errors during generation.
+        /// </returns>
         public async Task<(bool Success, List<string> LogMessages)> GenerateModAsync(ProjectSettings settings, List<string> sourceImagePaths)
         {
             var logMessages = new List<string>();
