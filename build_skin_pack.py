@@ -238,30 +238,36 @@ for idx, img_file in enumerate(images):
     resize_image(resized_path, ui_accessory_resized_path, ui_accessory_resolution) # Add the new resize call
 
     # Convert the resized image to DDS format for UI purposes.
-    # Input PNG is {paint_id}_ui_accessory.png, so output from convert_to_dds will be {paint_id}_ui_accessory.DDS
+    # Input PNG is {paint_id}_ui_accessory.png, texconv might output .DDS or .dds
     convert_to_dds(texconv_path, ui_accessory_resized_path, ui_folder, dds_format)
     
     # Define expected DDS names
-    original_dds_output_name = ui_folder / f"{paint_id}_ui_accessory.DDS" # Name as output by convert_to_dds
-    final_ui_dds_name = ui_folder / f"{paint_id}_ui_accessory.dds"      # Desired final name with lowercase .dds
+    dds_uppercase_path = ui_folder / f"{paint_id}_ui_accessory.DDS"
+    dds_lowercase_path = ui_folder / f"{paint_id}_ui_accessory.dds"
 
-    # Rename to ensure lowercase .dds extension
-    if original_dds_output_name.exists():
-        if original_dds_output_name != final_ui_dds_name: # Avoid renaming if it's already correct (e.g. texconv changes)
-            original_dds_output_name.rename(final_ui_dds_name)
-            logging.debug(f"    Renamed UI DDS to {final_ui_dds_name}")
-        else:
-            logging.debug(f"    UI DDS already has correct name and case: {final_ui_dds_name}")
-    elif final_ui_dds_name.exists():
-        logging.debug(f"    UI DDS already exists with correct name: {final_ui_dds_name}")
+    if dds_uppercase_path.exists():
+        if dds_uppercase_path.resolve() != dds_lowercase_path.resolve(): # Check if they are different files (matters on case-sensitive FS)
+            try:
+                dds_uppercase_path.rename(dds_lowercase_path)
+                logging.debug(f"    Renamed UI DDS from {dds_uppercase_path.name} to {dds_lowercase_path.name}")
+            except Exception as e:
+                logging.error(f"    Error renaming UI DDS {dds_uppercase_path.name} to {dds_lowercase_path.name}: {e}")
+                # Fallback: if rename fails, and lowercase doesn't exist, the warning at the end will catch it.
+        else: # Original was uppercase, but system treats it as same as lowercase (e.g. Windows)
+             logging.debug(f"    UI DDS {dds_uppercase_path.name} exists and is treated as {dds_lowercase_path.name} by the OS. Ensure lowercase path is usable.")
+             # On case-insensitive FS, dds_lowercase_path should now point to the file, even if its actual disk name has .DDS
+             # No rename is strictly needed if they resolve to the same path, but ensuring the variable dds_lowercase_path is what we use.
+    elif dds_lowercase_path.exists():
+        logging.debug(f"    UI DDS {dds_lowercase_path.name} already exists with lowercase extension.")
     else:
-        logging.warning(f"    Expected UI DDS file {original_dds_output_name} or {final_ui_dds_name} not found after conversion.")
+        logging.warning(f"    Expected UI DDS file ({dds_lowercase_path.name} or {dds_uppercase_path.name}) not found in {ui_folder} after conversion.")
 
+    # Subsequent operations like create_tobj should use dds_lowercase_path or its name.
     # Create TOBJ file for the UI DDS.
     # The first argument is the texture name (e.g., "paintjob001_ui_accessory.dds")
     # The second argument is the full path to where the .tobj file should be saved (e.g., "output_mod/material/ui/accessory/paintjob001_ui_accessory.tobj")
     create_tobj(
-        f"{paint_id}_ui_accessory.dds",
+        dds_lowercase_path.name, # Use the lowercase name
         ui_folder / f"{paint_id}_ui_accessory.tobj",
         "/material/ui/accessory",
         save_mode="default"
@@ -269,6 +275,7 @@ for idx, img_file in enumerate(images):
     # Create the .mat (material) file for the UI.
     # This needs to use the base name "{paint_id}_ui_accessory" to correctly generate
     # "{paint_id}_ui_accessory.mat" and reference "{paint_id}_ui_accessory.tobj" internally.
+    # Assuming create_ui_mat correctly derives .dds (lowercase) from the base name or the .tobj.
     create_ui_mat(f"{paint_id}_ui_accessory", ui_folder)
     logging.info(f"  UI assets for '{paint_id}' generated successfully.")
 
