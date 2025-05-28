@@ -1,0 +1,142 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:SkinPackCreator.Avalonia.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="700"
+        x:Class="SkinPackCreator.Avalonia.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Icon="/Assets/app_icon.ico" <!-- Placeholder: Worker can create a dummy Assets folder and skip actual icon file -->
+        Title="ETS2/ATS Skin Pack Creator" Width="900" Height="720" MinWidth="800" MinHeight="600">
+
+    <Design.DataContext>
+        <!-- This provides sample data for the XAML previewer -->
+        <vm:MainViewModel/>
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,*" Margin="10"> <!-- Changed to Auto,* for Tab and Button -->
+        <TabControl Grid.Row="0">
+            <TabItem Header="Setup">
+                <ScrollViewer>
+                    <StackPanel Spacing="8" Margin="15">
+                        <TextBlock Text="Project Setup" Classes="h2" FontWeight="Bold"/>
+                        
+                        <TextBlock Text="Input Image (PNG/JPG):" Margin="0,5,0,0"/>
+                        <Grid ColumnDefinitions="*,Auto" Gap="5">
+                            <TextBox Text="{Binding InputImagePath}" IsReadOnly="True" Watermark="Select an image file..."/>
+                            <Button Grid.Column="1" Content="Browse..." Command="{Binding SelectInputImagePathCommand}"/>
+                        </Grid>
+
+                        <TextBlock Text="Output Directory:" Margin="0,5,0,0"/>
+                        <Grid ColumnDefinitions="*,Auto" Gap="5">
+                            <TextBox Text="{Binding OutputDirectory}" IsReadOnly="True" Watermark="Select a folder for mod output..."/>
+                            <Button Grid.Column="1" Content="Browse..." Command="{Binding SelectOutputDirectoryCommand}"/>
+                        </Grid>
+
+                        <TextBlock Text="Texconv.exe Path:" Margin="0,5,0,0"/>
+                        <Grid ColumnDefinitions="*,Auto" Gap="5">
+                            <TextBox Text="{Binding TexconvPath}" IsReadOnly="True" Watermark="Path to texconv.exe..."/>
+                            <Button Grid.Column="1" Content="Browse..." Command="{Binding SelectTexconvPathCommand}"/>
+                        </Grid>
+                        
+                        <TextBlock Text="Mod Details" Classes="h2" FontWeight="SemiBold" Margin="0,15,0,5"/>
+                        <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" Gap="5">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Mod Name:" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ModName}"/>
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Mod Author:" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ModAuthor}"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Mod Version:" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ModVersion}"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Paint Job Prefix:" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding PaintJobPrefix}" ToolTip.Tip="e.g., 'skin'. Used for generating unique paint job IDs like 'skin001'."/>
+                            
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Mod Description:" VerticalAlignment="Top"/>
+                            <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding ModDescription}" TextWrapping="Wrap" MinHeight="60" AcceptsReturn="True" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                        </Grid>
+                        <CheckBox Content="Pack to .scs archive after generation" IsChecked="{Binding PackToScsArchive}" Margin="0,10,0,0"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Image &amp; DDS Settings">
+                <ScrollViewer>
+                    <StackPanel Spacing="8" Margin="15">
+                        <TextBlock Text="Image &amp; DDS Configuration" Classes="h2" FontWeight="Bold"/>
+                        <Grid ColumnDefinitions="180,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Gap="5">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="DDS Format:" VerticalAlignment="Center"/>
+                            <ComboBox Grid.Row="0" Grid.Column="1" SelectedItem="{Binding DdsFormat}">
+                                <ComboBoxItem>DXT5</ComboBoxItem>
+                                <ComboBoxItem>DXT1</ComboBoxItem>
+                                <ComboBoxItem>BC7_UNORM</ComboBoxItem>
+                                <ComboBoxItem>BC3_UNORM</ComboBoxItem> <!-- DXT5 equivalent -->
+                                <ComboBoxItem>BC1_UNORM</ComboBoxItem> <!-- DXT1 equivalent -->
+                            </ComboBox>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Main Image Resolution:" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="5">
+                                <NumericUpDown Value="{Binding MainImageWidth}" Minimum="256" Maximum="8192" Increment="256" Width="100"/>
+                                <TextBlock Text="x" VerticalAlignment="Center"/>
+                                <NumericUpDown Value="{Binding MainImageHeight}" Minimum="256" Maximum="8192" Increment="256" Width="100"/>
+                            </StackPanel>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="UI Accessory Resolution:" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="5">
+                                <NumericUpDown Value="{Binding UiAccessoryWidth}" Minimum="64" Maximum="1024" Increment="64" Width="100"/>
+                                <TextBlock Text="x" VerticalAlignment="Center"/>
+                                <NumericUpDown Value="{Binding UiAccessoryHeight}" Minimum="64" Maximum="1024" Increment="64" Width="100"/>
+                            </StackPanel>
+                            
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Paintjob Price:" VerticalAlignment="Center" Margin="0,10,0,0"/>
+                            <NumericUpDown Grid.Row="3" Grid.Column="1" Value="{Binding Price}" Minimum="0" Increment="100" Margin="0,10,0,0"/>
+                            
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Paintjob Unlock Level:" VerticalAlignment="Center"/>
+                            <NumericUpDown Grid.Row="4" Grid.Column="1" Value="{Binding UnlockLevel}" Minimum="0" Increment="1"/>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Vehicle Selection">
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,*" Margin="0,0,0,10"> <!-- Added bottom margin -->
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Trucks" Classes="h2" FontWeight="SemiBold" Margin="15,15,7.5,5"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Trailers" Classes="h2" FontWeight="SemiBold" Margin="7.5,15,15,5"/>
+                    
+                    <Border Grid.Row="1" Grid.Column="0" BorderBrush="Gray" BorderThickness="1" Margin="15,0,7.5,0">
+                        <ScrollViewer>
+                            <ItemsRepeater Items="{Binding AllTrucks}" Margin="5">
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:VehicleViewModel">
+                                        <CheckBox Content="{Binding DisplayName}" IsChecked="{Binding IsSelected}" Margin="0,3"/>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
+                        </ScrollViewer>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="7.5,0,15,0">
+                        <ScrollViewer >
+                            <ItemsRepeater Items="{Binding AllTrailers}" Margin="5">
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:VehicleViewModel">
+                                        <CheckBox Content="{Binding DisplayName}" IsChecked="{Binding IsSelected}" Margin="0,3"/>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Log Output">
+                <TextBox Text="{Binding LogOutput}" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" Margin="15" VerticalScrollBarVisibility="Auto" Watermark="Processing logs will appear here..."/>
+            </TabItem>
+        </TabControl>
+        
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0,10,0,0">
+            <ProgressBar IsIndeterminate="{Binding IsBusy}" IsVisible="{Binding IsBusy}" VerticalAlignment="Center" Margin="0,0,10,0" />
+            <Button Grid.Column="1" Content="Generate Mod Pack" Command="{Binding GenerateModCommand}" IsEnabled="{Binding !IsBusy}" Classes="accent" Padding="20,10" MinWidth="180"/>
+        </Grid>
+    </Grid>
+</Window>
