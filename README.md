@@ -2,16 +2,30 @@
 
 This Python script automates the creation of truck and trailer skin packs for Euro Truck Simulator 2 (ETS2) and American Truck Simulator (ATS). It processes your source images, converts them to the required DDS texture format, generates necessary definition files (.sii, .sui, .tobj, .mat), and structures them into a mod package.
 
-## Features
+🚀 Features
 
-*   Processes multiple input images (PNG, JPG) into individual paint jobs.
-*   Generates paint jobs for a predefined list of trucks and trailers.
-*   Creates UI assets for the paint jobs.
-*   Generates necessary `.tobj` (texture object) and material (`.mat`) files.
-*   Creates `.sii` and `.sui` definition files for paint job accessories.
-*   Generates a `manifest.sii` and `mod_description.txt` for the mod.
-*   Optionally packages the mod into an `.scs` archive.
-*   Customizable via `core/config.py`.
+This toolkit streamlines the process of creating skin mods for Euro Truck Simulator 2 and American Truck Simulator.
+
+    🎨 Multi-Image Processing
+    Automatically processes multiple .png or .jpg input images into individual paint job mods.
+
+    🚛 Truck & Trailer Compatibility
+    Supports generating paint jobs for a predefined list of trucks and trailers (fully configurable).
+
+    🧩 Asset Generation
+    Creates all required UI thumbnails, .mat files, and .tobj texture object files.
+
+    📄 Definition File Creation
+    Automatically generates .sii and .sui files for truck and trailer accessories.
+
+    🧾 Mod Metadata Automation
+    Builds manifest.sii and mod_description.txt files for in-game recognition.
+
+    📦 Optional Mod Packaging
+    Easily packages your mods into .scs archives for drag-and-drop use.
+
+    ⚙️ Highly Configurable
+    Customize settings, model lists, paths, and options via core/config.py.
 
 ## Prerequisites
 
